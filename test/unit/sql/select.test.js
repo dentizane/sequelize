@@ -45,7 +45,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
       limit: 10
     }, {
       default: "SELECT [email], [first_name] AS [firstName] FROM [User] WHERE [User].[email] = 'jon.snow@gmail.com' ORDER BY [email] DESC LIMIT 10;",
-      mssql: "SELECT [email], [first_name] AS [firstName] FROM [User] WHERE [User].[email] = N'jon.snow@gmail.com' ORDER BY [email] DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;"
+      mssql: "SELECT [email], [first_name] AS [firstName] FROM [User] WHERE [User].[email] = N'jon.snow@gmail.com' ORDER BY [email] DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;",
+      dbisam: 'SELECT "email", "first_name" AS "firstName" FROM "User" WHERE "User"."email" = \'jon.snow@gmail.com\' ORDER BY "email" DESC TOP 10;'
     });
 
     testsql({
@@ -488,7 +489,11 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         mssql: 'SELECT [User].*, [postaliasname].[id] AS [postaliasname.id], [postaliasname].[title] AS [postaliasname.title] FROM ' +
           '(SELECT [User].[name], [User].[age], [User].[id] AS [id] FROM [User] AS [User] ' +
           'WHERE ( SELECT [user_id] FROM [Post] AS [postaliasname] WHERE ([postaliasname].[user_id] = [User].[id]) ORDER BY [postaliasname].[id] OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY ) IS NOT NULL) AS [User] ' +
-          'INNER JOIN [Post] AS [postaliasname] ON [User].[id] = [postaliasname].[user_id];'
+          'INNER JOIN [Post] AS [postaliasname] ON [User].[id] = [postaliasname].[user_id];',
+        dbisam: 'SELECT "User".*, "postaliasname"."id" AS "postaliasname.id", "postaliasname"."title" AS "postaliasname.title" FROM ' +
+          '(SELECT "User"."name", "User"."age", "User"."id" AS "id" FROM "User" AS "User" ' +
+          'WHERE ( SELECT "user_id" FROM "Post" AS "postaliasname" WHERE ("postaliasname"."user_id" = "User"."id") TOP 1 ) IS NOT NULL) AS "User" ' +
+          'INNER JOIN "Post" AS "postaliasname" ON "User"."id" = "postaliasname"."user_id";'
       });
     });
 
@@ -511,7 +516,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         mariadb: 'SELECT `name`, `age`, `data` FROM `User` AS `User` WHERE `User`.`data` IN (X\'313233\');',
         mysql: 'SELECT `name`, `age`, `data` FROM `User` AS `User` WHERE `User`.`data` IN (X\'313233\');',
         sqlite: 'SELECT `name`, `age`, `data` FROM `User` AS `User` WHERE `User`.`data` IN (X\'313233\');',
-        mssql: 'SELECT [name], [age], [data] FROM [User] AS [User] WHERE [User].[data] IN (0x313233);'
+        mssql: 'SELECT [name], [age], [data] FROM [User] AS [User] WHERE [User].[data] IN (0x313233);',
+        dbisam: 'SELECT "name", "age", "data" FROM "User" AS "User" WHERE "User"."data" IN (X\'313233\');'
       });
     });
 

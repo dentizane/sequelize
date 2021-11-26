@@ -59,7 +59,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         default: 'WHERE [yolo.User].[id] = 1',
         postgres: 'WHERE "yolo"."User"."id" = 1',
         mariadb: 'WHERE `yolo`.`User`.`id` = 1',
-        mssql: 'WHERE [yolo].[User].[id] = 1'
+        mssql: 'WHERE [yolo].[User].[id] = 1',
+        dbisam: 'WHERE "yolo"."User"."id" = 1'
       });
     });
 
@@ -115,26 +116,30 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
     testsql('deleted', null, {
       default: '`deleted` IS NULL',
       postgres: '"deleted" IS NULL',
-      mssql: '[deleted] IS NULL'
+      mssql: '[deleted] IS NULL',
+      dbisam: '"deleted" IS NULL'
     });
 
     describe('Op.in', () => {
       testsql('equipment', {
         [Op.in]: [1, 3]
       }, {
-        default: '[equipment] IN (1, 3)'
+        default: '[equipment] IN (1, 3)',
+        dbisam: '"equipment" IN (1, 3)'
       });
 
       testsql('equipment', {
         [Op.in]: []
       }, {
-        default: '[equipment] IN (NULL)'
+        default: '[equipment] IN (NULL)',
+        dbisam: '"equipment" IN (NULL)'
       });
 
       testsql('muscles', {
         [Op.in]: [2, 4]
       }, {
-        default: '[muscles] IN (2, 4)'
+        default: '[muscles] IN (2, 4)',
+        dbisam: '"muscles" IN (2, 4)'
       });
 
       testsql('equipment', {
@@ -142,7 +147,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
           '(select order_id from product_orders where product_id = 3)'
         )
       }, {
-        default: '[equipment] IN (select order_id from product_orders where product_id = 3)'
+        default: '[equipment] IN (select order_id from product_orders where product_id = 3)',
+        dbisam: '"equipment" IN (select order_id from product_orders where product_id = 3)'
       });
     });
 
@@ -152,7 +158,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         sqlite: "`field` = X'53657175656c697a65'",
         mariadb: "`field` = X'53657175656c697a65'",
         mysql: "`field` = X'53657175656c697a65'",
-        mssql: '[field] = 0x53657175656c697a65'
+        mssql: '[field] = 0x53657175656c697a65',
+        dbisam: '"field" = X\'53657175656c697a65\''
       });
     });
 
@@ -162,19 +169,22 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
       }, {
         default: '[deleted] IS NOT true',
         mssql: '[deleted] IS NOT 1',
-        sqlite: '`deleted` IS NOT 1'
+        sqlite: '`deleted` IS NOT 1',
+        dbisam: '"deleted" IS NOT true'
       });
 
       testsql('deleted', {
         [Op.not]: null
       }, {
-        default: '[deleted] IS NOT NULL'
+        default: '[deleted] IS NOT NULL',
+        dbisam: '"deleted" IS NOT NULL'
       });
 
       testsql('muscles', {
         [Op.not]: 3
       }, {
-        default: '[muscles] != 3'
+        default: '[muscles] != 3',
+        dbisam: '"muscles" <> 3'
       });
     });
 
@@ -188,7 +198,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
       testsql('equipment', {
         [Op.notIn]: [4, 19]
       }, {
-        default: '[equipment] NOT IN (4, 19)'
+        default: '[equipment] NOT IN (4, 19)',
+        dbisam: '"equipment" NOT IN (4, 19)'
       });
 
       testsql('equipment', {
@@ -196,7 +207,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
           '(select order_id from product_orders where product_id = 3)'
         )
       }, {
-        default: '[equipment] NOT IN (select order_id from product_orders where product_id = 3)'
+        default: '[equipment] NOT IN (select order_id from product_orders where product_id = 3)',
+        dbisam: '"equipment" NOT IN (select order_id from product_orders where product_id = 3)'
       });
     });
 
@@ -205,7 +217,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         [Op.ne]: 'jack.bauer@gmail.com'
       }, {
         default: "[email] != 'jack.bauer@gmail.com'",
-        mssql: "[email] != N'jack.bauer@gmail.com'"
+        mssql: "[email] != N'jack.bauer@gmail.com'",
+        dbisam: '"email" <> \'jack.bauer@gmail.com\''
       });
     });
 
@@ -215,7 +228,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
           [Op.or]: ['maker@mhansen.io', 'janzeh@gmail.com']
         }, {
           default: '([email] = \'maker@mhansen.io\' OR [email] = \'janzeh@gmail.com\')',
-          mssql: '([email] = N\'maker@mhansen.io\' OR [email] = N\'janzeh@gmail.com\')'
+          mssql: '([email] = N\'maker@mhansen.io\' OR [email] = N\'janzeh@gmail.com\')',
+          dbisam: '("email" = \'maker@mhansen.io\' OR "email" = \'janzeh@gmail.com\')'
         });
 
         testsql('rank', {
@@ -325,7 +339,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
             [Op.between]: [10, 20]
           }
         }, {
-          default: '([rank] != 15 AND [rank] BETWEEN 10 AND 20)'
+          default: '([rank] != 15 AND [rank] BETWEEN 10 AND 20)',
+          dbisam: '("rank" <> 15 AND "rank" BETWEEN 10 AND 20)'
         });
 
         testsql('name', {
@@ -495,7 +510,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
       }, {
         default: "[date] BETWEEN '2013-01-01 00:00:00.000 +00:00' AND '2013-01-11 00:00:00.000 +00:00'",
         mysql: "`date` BETWEEN '2013-01-01 00:00:00' AND '2013-01-11 00:00:00'",
-        mariadb: "`date` BETWEEN '2013-01-01 00:00:00.000' AND '2013-01-11 00:00:00.000'"
+        mariadb: "`date` BETWEEN '2013-01-01 00:00:00.000' AND '2013-01-11 00:00:00.000'",
+        dbisam: "\"date\" BETWEEN '2013-01-01 00:00:00' AND '2013-01-11 00:00:00'"
       });
 
       testsql('date', {

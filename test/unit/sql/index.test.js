@@ -14,13 +14,15 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
       expectsql(sql.addIndexQuery('table', ['column1', 'column2'], {}, 'table'), {
         default: 'CREATE INDEX [table_column1_column2] ON [table] ([column1], [column2])',
         mariadb: 'ALTER TABLE `table` ADD INDEX `table_column1_column2` (`column1`, `column2`)',
-        mysql: 'ALTER TABLE `table` ADD INDEX `table_column1_column2` (`column1`, `column2`)'
+        mysql: 'ALTER TABLE `table` ADD INDEX `table_column1_column2` (`column1`, `column2`)',
+        dbisam: 'CREATE INDEX "table_column1_column2" ON "table" ("column1", "column2")'
       });
 
       if (current.dialect.supports.schemas) {
         expectsql(sql.addIndexQuery('schema.table', ['column1', 'column2'], {}), {
           default: 'CREATE INDEX [schema_table_column1_column2] ON [schema].[table] ([column1], [column2])',
-          mariadb: 'ALTER TABLE `schema`.`table` ADD INDEX `schema_table_column1_column2` (`column1`, `column2`)'
+          mariadb: 'ALTER TABLE `schema`.`table` ADD INDEX `schema_table_column1_column2` (`column1`, `column2`)',
+          dbisam: 'CREATE INDEX "schema_table_column1_column2" ON "schema"."table" ("column1", "column2")'
         });
 
         expectsql(sql.addIndexQuery({
@@ -50,7 +52,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         mssql: 'CREATE FULLTEXT INDEX [user_field_c] ON [User] ([fieldC])',
         postgres: 'CREATE INDEX CONCURRENTLY "user_field_c" ON "User" ("fieldC")',
         mariadb: 'ALTER TABLE `User` ADD FULLTEXT INDEX `user_field_c` (`fieldC`)',
-        mysql: 'ALTER TABLE `User` ADD FULLTEXT INDEX `user_field_c` (`fieldC`)'
+        mysql: 'ALTER TABLE `User` ADD FULLTEXT INDEX `user_field_c` (`fieldC`)',
+        dbisam: 'ALTER TABLE "User" TEXT INDEX ("fieldC")'
       });
 
       expectsql(sql.addIndexQuery('User', ['fieldB', { attribute: 'fieldA', collate: 'en_US', order: 'DESC', length: 5 }], {
@@ -63,7 +66,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         mssql: 'CREATE UNIQUE INDEX [a_b_uniq] ON [User] ([fieldB], [fieldA] DESC)',
         postgres: 'CREATE UNIQUE INDEX "a_b_uniq" ON "User" USING BTREE ("fieldB", "fieldA" COLLATE "en_US" DESC)',
         mariadb: 'ALTER TABLE `User` ADD UNIQUE INDEX `a_b_uniq` USING BTREE (`fieldB`, `fieldA`(5) DESC) WITH PARSER foo',
-        mysql: 'ALTER TABLE `User` ADD UNIQUE INDEX `a_b_uniq` USING BTREE (`fieldB`, `fieldA`(5) DESC) WITH PARSER foo'
+        mysql: 'ALTER TABLE `User` ADD UNIQUE INDEX `a_b_uniq` USING BTREE (`fieldB`, `fieldA`(5) DESC) WITH PARSER foo',
+        dbisam: 'CREATE UNIQUE INDEX "a_b_uniq" ON "User" ("fieldB", "fieldA" DESC)'
       });
     });
 
@@ -72,7 +76,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         default: 'CREATE INDEX [table_column] ON [table] ([column] COLLATE [BINARY] DESC)',
         mssql: 'CREATE INDEX [table_column] ON [table] ([column] DESC)',
         mariadb: 'ALTER TABLE `table` ADD INDEX `table_column` (`column`(5) DESC)',
-        mysql: 'ALTER TABLE `table` ADD INDEX `table_column` (`column`(5) DESC)'
+        mysql: 'ALTER TABLE `table` ADD INDEX `table_column` (`column`(5) DESC)',
+        dbisam: 'CREATE INDEX "table_column" ON "table" ("column" DESC)'
       });
     });
 
@@ -240,7 +245,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
         mariadb: 'DROP INDEX `table_column1_column2` ON `table`',
         mysql: 'DROP INDEX `table_column1_column2` ON `table`',
         mssql: 'DROP INDEX [table_column1_column2] ON [table]',
-        default: 'DROP INDEX IF EXISTS [table_column1_column2]'
+        default: 'DROP INDEX IF EXISTS [table_column1_column2]',
+        dbisam: 'DROP INDEX IF EXISTS "table"."table_column1_column2"'
       });
     });
   });

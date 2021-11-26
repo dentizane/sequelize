@@ -54,7 +54,8 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
           query: {
             mssql: 'DECLARE @tmp TABLE ([id] INTEGER,[user_name] NVARCHAR(255)); UPDATE [users] SET [user_name]=$1 OUTPUT INSERTED.[id],INSERTED.[user_name] INTO @tmp WHERE [id] = $2; SELECT * FROM @tmp',
             postgres: 'UPDATE "users" SET "user_name"=$1 WHERE "id" = $2 RETURNING "id","user_name"',
-            default: 'UPDATE `users` SET `user_name`=$1 WHERE `id` = $2'
+            default: 'UPDATE `users` SET `user_name`=$1 WHERE `id` = $2',
+            dbisam: 'UPDATE "users" SET "user_name"=$1 WHERE "id" = $2'
           },
           bind: {
             default: ['triggertest', 2]

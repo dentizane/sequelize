@@ -21,6 +21,24 @@ module.exports = {
     }
   },
 
+  dbisam: {
+    host: env.SEQ_MSSQL_HOST || env.SEQ_HOST || 'localhost',
+    username: env.SEQ_MSSQL_USER || env.SEQ_USER || '',
+    password: env.SEQ_MSSQL_PW || env.SEQ_PW || '',
+    port: env.SEQ_MSSQL_PORT || env.SEQ_PORT || 9999,
+    database: env.SEQ_MSSQL_DB || env.SEQ_DB || 'dbisam-test',
+    dialectOptions: {
+      options: {
+        encrypt: false,
+        requestTimeout: 300
+      }
+    },
+    pool: {
+      max: env.SEQ_MSSQL_POOL_MAX || env.SEQ_POOL_MAX || 5,
+      idle: env.SEQ_MSSQL_POOL_IDLE || env.SEQ_POOL_IDLE || 3000
+    }
+  },
+
   mysql: {
     database: env.SEQ_MYSQL_DB || env.SEQ_DB || 'sequelize_test',
     username: env.SEQ_MYSQL_USER || env.SEQ_USER || 'sequelize_test',
