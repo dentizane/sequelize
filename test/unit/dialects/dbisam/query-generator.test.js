@@ -151,8 +151,12 @@ if (dialect === 'dbisam') {
           expectation: 'SELECT * FROM "myTable" WHERE "myTable"."name" = \'foo\';',
           context: QueryGenerator
         }, {
-          arguments: ['myTable', { where: { name: 'foo;"DROP TABLE myTable;"' } }],
-          expectation: 'SELECT * FROM "myTable" WHERE "myTable"."name" = \'foo;\\"DROP TABLE myTable;\\"\';',
+          arguments: ['myTable', { where: { name: 'foo;\'DROP TABLE myTable;\'' } }],
+          expectation: 'SELECT * FROM "myTable" WHERE "myTable"."name" = \'foo;\'\'DROP TABLE myTable;\'\'\';',
+          context: QueryGenerator
+        }, {
+          arguments: ['myTable', { where: { name: 'foo\'s bar' } }],
+          expectation: 'SELECT * FROM "myTable" WHERE "myTable"."name" = \'foo\'\'s bar\';',
           context: QueryGenerator
         }, {
           arguments: ['myTable', { where: 2 }],
