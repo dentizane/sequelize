@@ -31,9 +31,12 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
             mssql: 'DECLARE @tmp TABLE ([id] INTEGER,[user_name] NVARCHAR(255)); INSERT INTO [users] ([user_name]) OUTPUT INSERTED.[id],INSERTED.[user_name] INTO @tmp VALUES ($1); SELECT * FROM @tmp;',
             postgres: 'INSERT INTO "users" ("user_name") VALUES ($1) RETURNING "id","user_name";',
             default: 'INSERT INTO `users` (`user_name`) VALUES ($1);',
-            dbisam: 'INSERT INTO "users" ("user_name") VALUES ($1);'
+            dbisam: 'INSERT INTO "users" ("user_name") VALUES (\'triggertest\');'
           },
-          bind: ['triggertest']
+          bind: {
+            default: ['triggertest'],
+            dbisam: null
+          }
         });
 
     });
@@ -59,14 +62,14 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
             postgres: 'INSERT INTO "users" ("date") VALUES ($1);',
             mssql: 'INSERT INTO [users] ([date]) VALUES ($1);',
             default: 'INSERT INTO `users` (`date`) VALUES ($1);',
-            dbisam: 'INSERT INTO "users" ("date") VALUES ($1);'
+            dbisam: 'INSERT INTO "users" ("date") VALUES (\'2015-01-20 01:00:00\');'
           },
           bind: {
             sqlite: ['2015-01-20 00:00:00.000 +00:00'],
             mysql: ['2015-01-20 01:00:00'],
             mariadb: ['2015-01-20 01:00:00.000'],
             default: ['2015-01-20 01:00:00.000 +01:00'],
-            dbisam: ['2015-01-20 01:00:00']
+            dbisam: null
           }
         });
     });
@@ -90,14 +93,14 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
             postgres: 'INSERT INTO "users" ("date") VALUES ($1);',
             mssql: 'INSERT INTO [users] ([date]) VALUES ($1);',
             default: 'INSERT INTO `users` (`date`) VALUES ($1);',
-            dbisam: 'INSERT INTO "users" ("date") VALUES ($1);'
+            dbisam: 'INSERT INTO "users" ("date") VALUES (\'2015-01-20 02:02:03.089\');'
           },
           bind: {
             sqlite: ['2015-01-20 01:02:03.089 +00:00'],
             mariadb: ['2015-01-20 02:02:03.089'],
             mysql: ['2015-01-20 02:02:03.089'],
             default: ['2015-01-20 02:02:03.089 +01:00'],
-            dbisam: ['2015-01-20 02:02:03.089']
+            dbisam: null
           }
         });
     });
@@ -120,11 +123,12 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
             postgres: 'INSERT INTO "users" ("user_name") VALUES ($1);',
             mssql: 'INSERT INTO [users] ([user_name]) VALUES ($1);',
             default: 'INSERT INTO `users` (`user_name`) VALUES ($1);',
-            dbisam: 'INSERT INTO "users" ("user_name") VALUES ($1);'
+            dbisam: 'INSERT INTO "users" ("user_name") VALUES (\'null\'+#0+\'test\');'
           },
           bind: {
             postgres: ['null\u0000test'],
-            default: ['null\0test']
+            default: ['null\0test'],
+            dbisam: null
           }
         });
     });

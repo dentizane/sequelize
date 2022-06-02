@@ -67,7 +67,7 @@ describe(Support.getTestDialectTeaser('SQL'), () => {
       mariadb: " LIMIT '\\';DELETE FROM user'",
       mysql: " LIMIT '\\';DELETE FROM user'",
       mssql: " OFFSET 0 ROWS FETCH NEXT N''';DELETE FROM user' ROWS ONLY",
-      dbisam: " TOP '\\';DELETE FROM user'"
+      dbisam: " TOP ''';DELETE FROM user'"
     });
 
     testsql({

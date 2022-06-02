@@ -409,71 +409,55 @@ if (dialect === 'dbisam') {
         {
           arguments: ['myTable', { name: 'foo' }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name") VALUES ($1);',
-            bind: ['foo']
+            query: 'INSERT INTO "myTable" ("name") VALUES (\'foo\');'
           }
         }, {
           arguments: ['myTable', { name: 'foo\';DROP TABLE myTable;' }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name") VALUES ($1);',
-            bind: ['foo\';DROP TABLE myTable;']
+            query: 'INSERT INTO "myTable" ("name") VALUES (\'foo\'\';DROP TABLE myTable;\');'
           }
         }, {
           arguments: ['myTable', { name: 'foo', birthday: new Date(Date.UTC(2011, 2, 27, 10, 1, 55)) }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name","birthday") VALUES ($1,$2);',
-            bind: ['foo', new Date(Date.UTC(2011, 2, 27, 10, 1, 55))]
+            query: 'INSERT INTO "myTable" ("name","birthday") VALUES (\'foo\',\'2011-03-27 10:01:55\');'
           }
         }, {
           arguments: ['myTable', { name: 'foo', foo: 1 }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name","foo") VALUES ($1,$2);',
-            bind: ['foo', 1]
-          }
-        }, {
-          arguments: ['myTable', { data: Buffer.from('Sequelize') }],
-          expectation: {
-            query: 'INSERT INTO "myTable" ("data") VALUES ($1);',
-            bind: [Buffer.from('Sequelize')]
+            query: 'INSERT INTO "myTable" ("name","foo") VALUES (\'foo\',1);'
           }
         }, {
           arguments: ['myTable', { name: 'foo', foo: 1, nullValue: null }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name","foo","nullValue") VALUES ($1,$2,$3);',
-            bind: ['foo', 1, null]
+            query: 'INSERT INTO "myTable" ("name","foo","nullValue") VALUES (\'foo\',1,NULL);'
           }
         }, {
           arguments: ['myTable', { name: 'foo', foo: 1, nullValue: null }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name","foo","nullValue") VALUES ($1,$2,$3);',
-            bind: ['foo', 1, null]
+            query: 'INSERT INTO "myTable" ("name","foo","nullValue") VALUES (\'foo\',1,NULL);'
           },
           context: { options: { omitNull: false } }
         }, {
           arguments: ['myTable', { name: 'foo', foo: 1, nullValue: null }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name","foo") VALUES ($1,$2);',
-            bind: ['foo', 1]
+            query: 'INSERT INTO "myTable" ("name","foo") VALUES (\'foo\',1);'
           },
           context: { options: { omitNull: true } }
         }, {
           arguments: ['myTable', { name: 'foo', foo: 1, nullValue: undefined }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("name","foo") VALUES ($1,$2);',
-            bind: ['foo', 1]
+            query: 'INSERT INTO "myTable" ("name","foo") VALUES (\'foo\',1);'
           },
           context: { options: { omitNull: true } }
         }, {
           arguments: ['myTable', { foo: false }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("foo") VALUES ($1);',
-            bind: [false]
+            query: 'INSERT INTO "myTable" ("foo") VALUES (false);'
           }
         }, {
           arguments: ['myTable', { foo: true }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("foo") VALUES ($1);',
-            bind: [true]
+            query: 'INSERT INTO "myTable" ("foo") VALUES (true);'
           }
         }, {
           arguments: ['myTable', function(sequelize) {
@@ -482,10 +466,34 @@ if (dialect === 'dbisam') {
             };
           }],
           expectation: {
-            query: 'INSERT INTO "myTable" ("foo") VALUES (NOW());',
-            bind: []
+            query: 'INSERT INTO "myTable" ("foo") VALUES (NOW());'
           },
           needsSequelize: true
+        }, {
+          arguments: ['myTable', { name: 'foo\x01\x02\x03\x04\x05\x06\x07\x08\x0B\x0C\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1Ebar' }],
+          expectation: {
+            query: 'INSERT INTO "myTable" ("name") VALUES (\'foobar\');'
+          }
+        }, {
+          arguments: ['myTable', { name: 'foo\tbar' }],
+          expectation: {
+            query: 'INSERT INTO "myTable" ("name") VALUES (\'foo\'+#9+\'bar\');'
+          }
+        }, {
+          arguments: ['myTable', { name: 'foo\rbar' }],
+          expectation: {
+            query: 'INSERT INTO "myTable" ("name") VALUES (\'foo\'+#13+\'bar\');'
+          }
+        }, {
+          arguments: ['myTable', { name: 'foo\nbar' }],
+          expectation: {
+            query: 'INSERT INTO "myTable" ("name") VALUES (\'foo\'+#10+\'bar\');'
+          }
+        }, {
+          arguments: ['myTable', { name: 'foo\r\nbar' }],
+          expectation: {
+            query: 'INSERT INTO "myTable" ("name") VALUES (\'foo\'+#13+\'\'+#10+\'bar\');'
+          }
         }
       ],
 
@@ -495,7 +503,7 @@ if (dialect === 'dbisam') {
           expectation: 'INSERT INTO "myTable" ("name") VALUES (\'foo\'),(\'bar\');'
         }, {
           arguments: ['myTable', [{ name: 'foo;"DROP TABLE myTable;"' }, { name: 'bar' }]],
-          expectation: 'INSERT INTO "myTable" ("name") VALUES (\'foo;\\"DROP TABLE myTable;\\"\'),(\'bar\');'
+          expectation: 'INSERT INTO "myTable" ("name") VALUES (\'foo;"DROP TABLE myTable;"\'),(\'bar\');'
         }, {
           arguments: ['myTable', [{ name: 'foo', birthday: new Date(Date.UTC(2011, 2, 27, 10, 1, 55)) }, { name: 'bar', birthday: new Date(Date.UTC(2012, 2, 27, 10, 1, 55)) }]],
           expectation: 'INSERT INTO "myTable" ("name","birthday") VALUES (\'foo\',\'2011-03-27 10:01:55\'),(\'bar\',\'2012-03-27 10:01:55\');'
@@ -533,59 +541,50 @@ if (dialect === 'dbisam') {
         {
           arguments: ['myTable', { name: 'foo', birthday: new Date(Date.UTC(2011, 2, 27, 10, 1, 55)) }, { id: 2 }],
           expectation: {
-            query: 'UPDATE "myTable" SET "name"=$1,"birthday"=$2 WHERE "id" = $3',
-            bind: ['foo', new Date(Date.UTC(2011, 2, 27, 10, 1, 55)), 2]
+            query: 'UPDATE "myTable" SET "name"=\'foo\',"birthday"=\'2011-03-27 10:01:55\' WHERE "id" = 2'
           }
 
         }, {
           arguments: ['myTable', { name: 'foo', birthday: new Date(Date.UTC(2011, 2, 27, 10, 1, 55)) }, { id: 2 }],
           expectation: {
-            query: 'UPDATE "myTable" SET "name"=$1,"birthday"=$2 WHERE "id" = $3',
-            bind: ['foo', new Date(Date.UTC(2011, 2, 27, 10, 1, 55)), 2]
+            query: 'UPDATE "myTable" SET "name"=\'foo\',"birthday"=\'2011-03-27 10:01:55\' WHERE "id" = 2'
           }
         }, {
           arguments: ['myTable', { bar: 2 }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"=$1 WHERE "name" = $2',
-            bind: [2, 'foo']
+            query: 'UPDATE "myTable" SET "bar"=2 WHERE "name" = \'foo\''
           }
         }, {
           arguments: ['myTable', { name: 'foo\';DROP TABLE myTable;' }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "name"=$1 WHERE "name" = $2',
-            bind: ['foo\';DROP TABLE myTable;', 'foo']
+            query: 'UPDATE "myTable" SET "name"=\'foo\'\';DROP TABLE myTable;\' WHERE "name" = \'foo\''
           }
         }, {
           arguments: ['myTable', { bar: 2, nullValue: null }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"=$1,"nullValue"=$2 WHERE "name" = $3',
-            bind: [2, null, 'foo']
+            query: 'UPDATE "myTable" SET "bar"=2,"nullValue"=NULL WHERE "name" = \'foo\''
           }
         }, {
           arguments: ['myTable', { bar: 2, nullValue: null }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"=$1,"nullValue"=$2 WHERE "name" = $3',
-            bind: [2, null, 'foo']
+            query: 'UPDATE "myTable" SET "bar"=2,"nullValue"=NULL WHERE "name" = \'foo\''
           },
           context: { options: { omitNull: false } }
         }, {
           arguments: ['myTable', { bar: 2, nullValue: null }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"=$1 WHERE "name" = $2',
-            bind: [2, 'foo']
+            query: 'UPDATE "myTable" SET "bar"=2 WHERE "name" = \'foo\''
           },
           context: { options: { omitNull: true } }
         }, {
           arguments: ['myTable', { bar: false }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"=$1 WHERE "name" = $2',
-            bind: [false, 'foo']
+            query: 'UPDATE "myTable" SET "bar"=false WHERE "name" = \'foo\''
           }
         }, {
           arguments: ['myTable', { bar: true }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"=$1 WHERE "name" = $2',
-            bind: [true, 'foo']
+            query: 'UPDATE "myTable" SET "bar"=true WHERE "name" = \'foo\''
           }
         }, {
           arguments: ['myTable', function(sequelize) {
@@ -594,8 +593,7 @@ if (dialect === 'dbisam') {
             };
           }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"=NOW() WHERE "name" = $1',
-            bind: ['foo']
+            query: 'UPDATE "myTable" SET "bar"=NOW() WHERE "name" = \'foo\''
           },
           needsSequelize: true
         }, {
@@ -605,8 +603,7 @@ if (dialect === 'dbisam') {
             };
           }, { name: 'foo' }],
           expectation: {
-            query: 'UPDATE "myTable" SET "bar"="foo" WHERE "name" = $1',
-            bind: ['foo']
+            query: 'UPDATE "myTable" SET "bar"="foo" WHERE "name" = \'foo\''
           },
           needsSequelize: true
         }

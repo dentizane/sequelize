@@ -234,7 +234,7 @@ const Support = {
       expect(query.query || query).to.equal(expectation);
     }
 
-    if (assertions.bind) {
+    if (assertions.bind && assertions.bind[Support.sequelize.dialect.name] !== null) {
       const bind = assertions.bind[Support.sequelize.dialect.name] || assertions.bind['default'] || assertions.bind;
       expect(query.bind).to.deep.equal(bind);
     }
